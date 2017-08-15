@@ -93,7 +93,7 @@ def create_gmaps_query(details):
 
 # Given a User, check that it is Meowth's master
 def check_master(user):
-    return str(user) == config['master']
+    return str(user) == str(ctx.message.server.owner)
 
 # Given a violating message, raise an exception
 # reporting unauthorized use of admin commands
@@ -132,12 +132,93 @@ The trainer_dict contains "trainer" elements, which have the following fields:
 """
 
 raidchannel_dict = {}
+citychannel_dict = {}
+
 
 team_msg = " or ".join(["'!team {0}'".format(team) for team in team_dict.keys()])
 
 @Meowth.event
 async def on_ready():
     print("Meowth! That's right!") #prints to the terminal or cmd prompt window upon successful connection to Discord
+
+@Meowth.event
+async def on_server_join(server):
+    fd = open("serverdict", "rb")
+    server_dict = pickle.load(fd)
+    fd.close()
+    server_dict[server]=False
+    fd = open("serverdict", "wb")
+    pickle.dump(server_dict, fd)
+    fd.close()
+    await Meowth.send_message(server.owner, """Meowth! Hi, I'm Meowth - an open source Discord helper bot for Pokemon Go communities!
+You're receiving this message because someone has added me to your server {0}! If someone has done this by mistake or without permission, just
+kick me from your server. I won't do anything on your server until you tell me it's okay. Type !help to see a list of things I can do. If you want
+me to stick around on your server and help out, type !config to get started!""")
+
+@Meowth.command(pass_context=True)
+async def config(ctx):
+    """Config command for setting up Meowth on a server. Usable only by
+server owner."""
+    if ctx.message.author == ctx.server.owner:
+        await Meowth.send_message(server.owner, """Meowth! That's great! Let's get to it. First, think about how many communities does this server cover? By a community
+I mean an area where a group of Pokemon Go trainers play where you can get to a gym or other spot in the community in no more than 15 minutes or so. A large
+metropolitan area might contain several of these, and so might a large rural area. Remember, my primary purpose is to help coordinate Pokemon Go raids,
+so ideally a single community is an area where most of the trainers in that area are willing to go anywhere in the area for raids. Think about it and reply
+to this message with a number.""")
+        await Meowth.send_message(server.owner, """For me to work best, I recommend you set up a ROLE and CHANNEL for each community. We will let people opt in
+and out of each community role as they please, and each community channel should only be visible to those with the matching role. The reason we will do this is that
+I create a channel for each raid that gets reported and I @mention a role that includes everyone who wants that Pokemon. Limiting each city channel to those
+who opt in to the city role will cut down on irrelevant notifications for people who, for instance, don't want to get a push notification for every raid
+reported in the next town over, which may be too far away to be relevant. Again, we will let users decide if they want each city role. Go ahead and set up
+roles and channels for each city. When you're done, type !continue""")
+        await Meowth.wait_for_message(author=server.owner, content= "!continue")
+        await Meowth.send_message(server.owner, """Meowth! Alright, what I need now is a list of the names of the community CHANNELS. Enter them like this: channel1, channel2,
+channel3   There should be a single comma and a single space between each role name. Don't include the #! When you're done, send the message.""")
+        citychannels = await Meowth.wait_for_message(author=server.owner)
+        citychannel_list = citychannels.content.split(', ')
+        server_channel_list = []
+        for channel in server.channels:
+            server_channel_list.append(channel.name)
+        if set(citychannel_list) <= set(server_channel_list):
+            await Meowth.send_message(server.owner, "Meowth! Great! Looks like all of these are names of channels in your server.")
+        else:
+            await Meowth.send_message(server.owner, "Meowth! Something went wrong! Please type !config to start over!")
+        await Meowth.send_message(server.owner, """Meowth! Alright, we need to set starting locations for each of the channels you just mentioned in the SAME ORDER you typed before. This is
+what I use to generate Google Maps links to give people directions to raids and spawns! Knowing what town everything is in is often good enough to narrow
+it down. One way to put it is, for each channel you just listed, I need a location specific enough that I'll know which First Baptist Church people mean.
+This is important, so please enter it in just this way. For each channel, give me a location using only letters, no punctuation. So something like 'kansas
+city mo' or 'hull uk' without the quotes.""")
+        cities = await Meowth.wait_for_message(author=server.owner)
+        city_list = cities.content.split(', ')
+        if len(city_list) == len(citychannel_list):
+            for i in range(len(citychannel_list)):
+                citychannel_dict[citychannel_list[i]]=city_list[i]
+        else:
+            await Meowth.send_message(server.owner,"""Meowth! There weren't the same number of cities and channels! Please type !config
+to start over!""")
+            return
+        await Meowth.send_message(server.owner, """Meowth! OK, last thing! I need the following permissions for the server: read messages, send messages, embed links,
+manage roles, manage channels, manage emojis. That's the bare minimum I need to work properly. I also need to be in a role that is above all community and team
+roles in the hierarchy. You can give me Administrator if you want but not if you want to restrict me to certain channels. When I have the permissions I need,
+type !done and I will finish setting up on your server!""")
+        await Meowth.wait_for_message(author=server.owner, content = "!done")
+        try:
+            await Meowth.create_custom_emoji() #there will be like a bunch of these later
+            await Meowth.create_channel #meowth-chat?
+            fd = open(ctx.message.server.id, "wb")
+            pickle.dump(citychannel_dict, fd)
+            fd.close()
+            fd = open("serverdict", "rb")
+            server_dict = pickle.load(fd)
+            fd.close()
+            server_dict[ctx.message.server]=True
+            fd = open("serverdict", "wb")
+            pickle.dump(server_dict, fd)
+    else:
+        raise_admin_violation(ctx.message)
+        
+            
+    
 
 
 """Welcome message to the server and some basic instructions."""
@@ -188,10 +269,9 @@ async def welcome(ctx):
         if space1 != -1:
             member = discord.utils.get(ctx.message.server.members, name=ctx.message.content[9:])
             if not member:
-                await Meowth.send_message(ctx.message.channel, "Meowth! No member named \"{0}\"!".format(ctx.message.content[9:]))
-        
-        if member:
-            await on_member_join(member)
+                await Meowth.send_message(ctx.message.channel, "Meowth! No member named \"{0}\"!".format(ctx.message.content[9:]))        
+            if member:
+                await on_member_join(member)
     else:
         raise_admin_violation(ctx.message)
 
