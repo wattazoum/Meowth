@@ -1002,8 +1002,19 @@ async def prefix(ctx, prefix=None):
         default_prefix = Meowth.config['default_prefix']
         await ctx.channel.send('Prefix has been reset to default: `{}`'.format(default_prefix))
 
+@_set.command()
+@commands.has_permissions(manage_guild=True)
+async def timezone(ctx, timezone=0):
+    """Changes server timezone."""
+    _set_timezone(Meowth, ctx.guild, timezone)
+    now = time.gmtime(time.time() + 60*60*timezone).strftime("%H:%M")
+    await ctx.channel.send("Timezone has been set to: `UTC{offset}`\nThe current time is **{now}**".format(offset=timezone,now=now)
+
 def _set_prefix(bot, guild, prefix):
     bot.guild_dict[guild.id]['prefix'] = prefix
+
+def _set_timezone(bot, guild, timezone):
+    bot.guild_dict[guild.id]['offset'] = timezone
 
 @Meowth.group(name='get')
 @commands.has_permissions(manage_guild=True)
