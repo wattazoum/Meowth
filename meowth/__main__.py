@@ -1265,7 +1265,15 @@ async def _configurecommands(ctx):
             elif react == '✅':
                 await owner.send(embed=discord.Embed(colour=discord.Colour.green(), description="Meowth! Great! I've enabled those commands on your server.").set_author(name=_('Meowth Configuration - {0}').format(guild.name), icon_url=Meowth.user.avatar_url))
                 ctx.guild_dict_temp = guild_dict_temp
-                return ctx
+                if not ctx.invoked_subcommand or ctx.invoked_subcommand == Meowth.get_command("configure all"):
+                    return ctx
+                else:
+                    if ctx.guild_dict_temp['welcome'] and not guild_dict[guild.id]['welcome']:
+                        ctx = await _configurewelcome(ctx)
+                    if (ctx.guild_dict_temp['raidset'] and not guild_dict[guild.id]['raidset']) or (ctx.guild_dict_temp['wildset'] and not guild_dict[guild.id]['wildset']):
+                        ctx = await _configurereports(ctx)
+                    if ctx.guild_dict_temp['wantset'] and not guild_dict[guild.id]['wantset']:
+                        ctx = await _configurewant(ctx)
         else:
             await owner.send(embed=discord.Embed(colour=discord.Colour.red(), description="Meowth! Alright, I'll wait for you to tell me what commands you want enabled again."))
             continue
@@ -1274,111 +1282,88 @@ async def _configurewelcome(ctx):
     guild = ctx.guild
     owner = ctx.author
     guild_dict_temp = getattr(ctx, 'guild_dict_temp', copy.deepcopy(guild_dict[guild.id]))
-    welcomeconfig = 'I can welcome new members to the server with a short message. Here is an example:\n\n'
-    if guild_dict_temp['team'] == True:
-        welcomeconfig += _("Meowth! Welcome to {server_name}, {owner_name.mention}! Set your team by typing '**!team mystic**' or '**!team valor**' or '**!team instinct**' without quotations. If you have any questions just ask an admin.").format(server_name=guild.name, owner_name=owner)
-    else:
-        welcomeconfig += _('Meowth! Welcome to {server_name}, {owner_name.mention}! If you have any questions just ask an admin.').format(server_name=guild.name, owner_name=owner)
-    welcomeconfig += '\n\nThis welcome message can be in a specific channel or a direct message. If you have a bot that handles this already, you may want to disable this feature.\n\nRespond with: **N** to disable, **Y** to enable:'
-    await owner.send(embed=discord.Embed(colour=discord.Colour.lighter_grey(), description=welcomeconfig).set_author(name='Welcome Message', icon_url=Meowth.user.avatar_url))
-    while True:
-        welcomereply = await Meowth.wait_for('message', check=(lambda message: (message.guild == None) and message.author == owner))
-        if welcomereply.content.lower() == 'y':
-            guild_dict_temp['welcome'] = True
-            await owner.send(embed=discord.Embed(colour=discord.Colour.green(), description='Welcome Message enabled!'))
-            await owner.send(embed=discord.Embed(
-                colour=discord.Colour.lighter_grey(),
-                description=("Would you like a custom welcome message? "
-                             "You can reply with **N** to use the default message above or enter your own below.\n\n"
-                             "I can read all [discord formatting](https://support.discordapp.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline-) "
-                             "and I have the following template tags:\n\n"
-                             "**{@member}** - Replace member with user name or ID\n"
-                             "**{#channel}** - Replace channel with channel name or ID\n"
-                             "**{&role}** - Replace role name or ID (shows as @deleted-role DM preview)\n"
-                             "**{user}** - Will mention the new user\n"
-                             "**{server}** - Will print your server's name\n"
-                             "Surround your message with [] to send it as an embed. **Warning:** Mentions within embeds may be broken on mobile, this is a Discord bug.")).set_author(name="Welcome Message", icon_url=Meowth.user.avatar_url))
-            while True:
-                welcomemsgreply = await Meowth.wait_for('message', check=(lambda message: (message.guild == None) and (message.author == owner)))
-                if welcomemsgreply.content.lower() == 'n':
-                    guild_dict_temp['welcomemsg'] = 'default'
-                    await owner.send(embed=discord.Embed(colour=discord.Colour.green(), description="Default welcome message set"))
-                    break
-                elif welcomemsgreply.content.lower() == "cancel":
-                    configcancel = True
-                    await owner.send(embed=discord.Embed(colour=discord.Colour.red(), description="**CONFIG CANCELLED!**\n\nNo changes have been made."))
-                    return
-                elif len(welcomemsgreply.content) > 500:
-                    await owner.send(embed=discord.Embed(colour=discord.Colour.lighter_grey(), description="Please shorten your message to less than 500 characters."))
+    await owner.send(embed=discord.Embed(
+        colour=discord.Colour.lighter_grey(),
+        description=("Would you like a custom welcome message? "
+            "You can reply with **N** to use the default message above or enter your own below.\n\n"
+            "I can read all [discord formatting](https://support.discordapp.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline-) "
+            "and I have the following template tags:\n\n"
+            "**{@member}** - Replace member with user name or ID\n"
+            "**{#channel}** - Replace channel with channel name or ID\n"
+            "**{&role}** - Replace role name or ID (shows as @deleted-role DM preview)\n"
+            "**{user}** - Will mention the new user\n"
+            "**{server}** - Will print your server's name\n"
+            "Surround your message with [] to send it as an embed. **Warning:** Mentions within embeds may be broken on mobile, this is a Discord bug.")).set_author(name="Welcome Message", icon_url=Meowth.user.avatar_url))
+        while True:
+            welcomemsgreply = await Meowth.wait_for('message', check=(lambda message: (message.guild == None) and (message.author == owner)))
+            if welcomemsgreply.content.lower() == 'n':
+                guild_dict_temp['welcomemsg'] = 'default'
+                await owner.send(embed=discord.Embed(colour=discord.Colour.green(), description="Default welcome message set"))
+                break
+            elif welcomemsgreply.content.lower() == "cancel":
+                configcancel = True
+                await owner.send(embed=discord.Embed(colour=discord.Colour.red(), description="**CONFIG CANCELLED!**\n\nNo changes have been made."))
+                return
+            elif len(welcomemsgreply.content) > 500:
+                await owner.send(embed=discord.Embed(colour=discord.Colour.lighter_grey(), description="Please shorten your message to less than 500 characters."))
+                continue
+            else:
+                welcomemessage, errors = do_template(welcomemsgreply.content, owner, guild)
+                if errors:
+                    if welcomemessage.startswith("[") and welcomemessage.endswith("]"):
+                        embed = discord.Embed(colour=guild.me.colour, description=welcomemessage[1:-1].format(user=owner.mention))
+                        embed.add_field(name='Warning', value='The following could not be found:\n{}'.format('\n'.join(errors)))
+                        await owner.send(embed=embed)
+                    else:
+                        await owner.send("{msg}\n\n**Warning:**\nThe following could not be found: {errors}".format(msg=welcomemessage, errors=', '.join(errors)))
+                    await owner.send(embed=discord.Embed(colour=discord.Colour.lighter_grey(), description="Please check the data given and retry a new welcome message, or reply with **N** to use the default."))
                     continue
                 else:
-                    welcomemessage, errors = do_template(welcomemsgreply.content, owner, guild)
-                    if errors:
-                        if welcomemessage.startswith("[") and welcomemessage.endswith("]"):
-                            embed = discord.Embed(colour=guild.me.colour, description=welcomemessage[1:-1].format(user=owner.mention))
-                            embed.add_field(name='Warning', value='The following could not be found:\n{}'.format('\n'.join(errors)))
-                            await owner.send(embed=embed)
-                        else:
-                            await owner.send("{msg}\n\n**Warning:**\nThe following could not be found: {errors}".format(msg=welcomemessage, errors=', '.join(errors)))
-                        await owner.send(embed=discord.Embed(colour=discord.Colour.lighter_grey(), description="Please check the data given and retry a new welcome message, or reply with **N** to use the default."))
-                        continue
+                    if welcomemessage.startswith("[") and welcomemessage.endswith("]"):
+                        embed = discord.Embed(colour=guild.me.colour, description=welcomemessage[1:-1].format(user=owner.mention))
+                        question = await owner.send(embed=embed)
+                        res = await ask(question, owner, owner.id)
                     else:
-                        if welcomemessage.startswith("[") and welcomemessage.endswith("]"):
-                            embed = discord.Embed(colour=guild.me.colour, description=welcomemessage[1:-1].format(user=owner.mention))
-                            question = await owner.send(embed=embed)
-                            res = await ask(question, owner, owner.id)
-                        else:
-                            question = await owner.send(welcomemessage.format(user=owner.mention))
-                            res = await ask(question, owner, owner.id)
-                    if res == '❎':
-                        await owner.send(embed=discord.Embed(colour=discord.Colour.lighter_grey(), description="Please enter a new welcome message, or reply with **N** to use the default."))
-                        continue
-                    else:
-                        guild_dict_temp['welcomemsg'] = welcomemessage
-                        await owner.send(embed=discord.Embed(colour=discord.Colour.green(), description="Welcome Message set to:\n\n{}".format(guild_dict_temp['welcomemsg'])))
-                        break
-                break
-            await owner.send(embed=discord.Embed(colour=discord.Colour.lighter_grey(), description="Which channel in your server would you like me to post the Welcome Messages? You can also choose to have them sent to the new member via Direct Message (DM) instead.\n\nRespond with: **channel-name** of a channel in your server or **DM** to Direct Message:").set_author(name="Welcome Message Channel", icon_url=Meowth.user.avatar_url))
-            while True:
-                welcomechannelreply = await Meowth.wait_for('message',check=lambda message: message.guild == None and message.author == owner)
-                if welcomechannelreply.content.lower() == "dm":
-                    guild_dict_temp['welcomechan'] = "dm"
-                    await owner.send(embed=discord.Embed(colour=discord.Colour.green(), description="Welcome DM set"))
+                        question = await owner.send(welcomemessage.format(user=owner.mention))
+                        res = await ask(question, owner, owner.id)
+                if res == '❎':
+                    await owner.send(embed=discord.Embed(colour=discord.Colour.lighter_grey(), description="Please enter a new welcome message, or reply with **N** to use the default."))
+                    continue
+                else:
+                    guild_dict_temp['welcomemsg'] = welcomemessage
+                    await owner.send(embed=discord.Embed(colour=discord.Colour.green(), description="Welcome Message set to:\n\n{}".format(guild_dict_temp['welcomemsg'])))
+                    break
+            break
+        await owner.send(embed=discord.Embed(colour=discord.Colour.lighter_grey(), description="Which channel in your server would you like me to post the Welcome Messages? You can also choose to have them sent to the new member via Direct Message (DM) instead.\n\nRespond with: **channel-name** of a channel in your server or **DM** to Direct Message:").set_author(name="Welcome Message Channel", icon_url=Meowth.user.avatar_url))
+        while True:
+            welcomechannelreply = await Meowth.wait_for('message',check=lambda message: message.guild == None and message.author == owner)
+            if welcomechannelreply.content.lower() == "dm":
+                guild_dict_temp['welcomechan'] = "dm"
+                await owner.send(embed=discord.Embed(colour=discord.Colour.green(), description="Welcome DM set"))
+                ctx.guild_dict_temp = guild_dict_temp
+                return ctx
+            elif " " in welcomechannelreply.content.lower():
+                await owner.send(embed=discord.Embed(colour=discord.Colour.lighter_grey(), description="Channel names can't contain spaces, sorry. Please double check the name and send your response again."))
+                continue
+            elif welcomechannelreply.content.lower() == "cancel":
+                configcancel = True
+                await owner.send(embed=discord.Embed(colour=discord.Colour.red(), description='**CONFIG CANCELLED!**\n\nNo changes have been made.'))
+                return None
+            else:
+                guild_channel_list = []
+                for channel in guild.text_channels:
+                    guild_channel_list.append(channel.name)
+                diff = set([welcomechannelreply.content.lower().strip()]) - set(guild_channel_list)
+                if (not diff):
+                    guild_dict_temp['welcomechan'] = welcomechannelreply.content.lower()
+                    await owner.send(embed=discord.Embed(colour=discord.Colour.green(), description='Welcome Channel set'))
                     ctx.guild_dict_temp = guild_dict_temp
                     return ctx
-                elif " " in welcomechannelreply.content.lower():
-                    await owner.send(embed=discord.Embed(colour=discord.Colour.lighter_grey(), description="Channel names can't contain spaces, sorry. Please double check the name and send your response again."))
-                    continue
-                elif welcomechannelreply.content.lower() == "cancel":
-                    configcancel = True
-                    await owner.send(embed=discord.Embed(colour=discord.Colour.red(), description='**CONFIG CANCELLED!**\n\nNo changes have been made.'))
-                    return None
                 else:
-                    guild_channel_list = []
-                    for channel in guild.text_channels:
-                        guild_channel_list.append(channel.name)
-                    diff = set([welcomechannelreply.content.lower().strip()]) - set(guild_channel_list)
-                    if (not diff):
-                        guild_dict_temp['welcomechan'] = welcomechannelreply.content.lower()
-                        await owner.send(embed=discord.Embed(colour=discord.Colour.green(), description='Welcome Channel set'))
-                        ctx.guild_dict_temp = guild_dict_temp
-                        return ctx
-                    else:
-                        await owner.send(embed=discord.Embed(colour=discord.Colour.lighter_grey(), description="The channel you provided isn't in your server. Please double check your channel name and resend your response."))
-                        continue
-                break
-            break
-        elif welcomereply.content.lower() == 'n':
-            guild_dict_temp['welcome'] = False
-            await owner.send(embed=discord.Embed(colour=discord.Colour.red(), description='Welcome Message disabled!'))
-            break
-        elif welcomereply.content.lower() == 'cancel':
-            configcancel = True
-            await owner.send(embed=discord.Embed(colour=discord.Colour.red(), description='**CONFIG CANCELLED!**\n\nNo changes have been made.'))
-            return None
-        else:
-            await owner.send(embed=discord.Embed(colour=discord.Colour.lighter_grey(), description="I'm sorry I don't understand. Please reply with either **N** to disable, or **Y** to enable."))
-            continue
+                    await owner.send(embed=discord.Embed(colour=discord.Colour.lighter_grey(), description="The channel you provided isn't in your server. Please double check your channel name and resend your response."))
+                    continue
+
+
 
 async def _configurereports(ctx):
     guild = ctx.guild
