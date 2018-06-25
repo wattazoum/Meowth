@@ -175,3 +175,6 @@ async def get_raid_help(prefix, avatar, user=None):
     if not user:
         return helpembed
     await user.send(embed=helpembed)
+
+def translate_pkmname(name):
+    return name

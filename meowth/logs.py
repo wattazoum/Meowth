@@ -2,6 +2,7 @@ import sys
 import logging
 import logging.handlers
 
+
 def init_loggers():
     # d.py stuff
     dpy_logger = logging.getLogger("discord")
@@ -21,7 +22,7 @@ def init_loggers():
 
     stdout_handler = logging.StreamHandler(sys.stdout)
     stdout_handler.setFormatter(meowth_format)
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.DEBUG)
 
     logfile_path = 'logs/meowth.log'
     fhandler = logging.handlers.RotatingFileHandler(
