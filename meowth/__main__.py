@@ -6248,6 +6248,7 @@ async def _here(channel, author, count, party, entered_interest=None):
     trainer_dict[author.id]['party'] = party
     if entered_interest:
         trainer_dict[author.id]['interest'] = entered_interest
+    logger.debug("Trainer_dict: %s" % trainer_dict[author.id])
     await _edit_party(channel, author)
     guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['trainer_dict'] = trainer_dict
 

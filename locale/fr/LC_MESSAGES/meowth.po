@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-06-29 22:54+CEST\n"
-"PO-Revision-Date: 2018-06-30 18:47+0200\n"
+"PO-Revision-Date: 2018-07-01 00:51+0200\n"
 "Last-Translator: Scragly\n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -1269,7 +1269,7 @@ msgstr "équipe"
 
 #: meowth/__main__.py:3408 meowth/__main__.py:4407 meowth/__main__.py:4567 meowth/__main__.py:5371 meowth/__main__.py:5385 meowth/__main__.py:6400
 msgid "status"
-msgstr "statut"
+msgstr "états"
 
 #: meowth/__main__.py:3412 meowth/__main__.py:3413
 msgid "Level {}"
@@ -2447,7 +2447,7 @@ msgstr ""
 
 #: meowth/__main__.py:6411
 msgid "**Status List**"
-msgstr "**Etats**"
+msgstr "**États**"
 
 #: meowth/__main__.py:6411
 msgid "Maybe: **{channelmaybe}** | Coming: **{channelcoming}** | Here: **{channelhere}**"
@@ -2455,7 +2455,7 @@ msgstr "Peut être: **{channelmaybe}** | En route: **{channelcoming}** | arrivé
 
 #: meowth/__main__.py:6412
 msgid "**Team List**"
-msgstr "**Equipe**"
+msgstr "**Équipe**"
 
 #: meowth/__main__.py:6447
 msgid "Meowth! I can't understand how many are in your group. Just say **!here** if you're by yourself, or **!coming 5** for example if there are 5 in your group."
@@ -2797,7 +2797,7 @@ msgstr "Meowth! Il n'y a pas de raids actifs! Signaler un avec: **!raid <nom du 
 
 #: meowth/errors.py:132
 msgid "Meowth! I'm missing some details! Usage: {prefix}{command}"
-msgstr ""
+msgstr "Miaouss! Je manque d'information! Usage: {prefix}{command}"
 
 #: meowth/errors.py:165
 msgid "Meowth! Team Management is not enabled on this server. **{prefix}{cmd_name}** is unable to be used."
