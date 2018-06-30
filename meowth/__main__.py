@@ -331,7 +331,7 @@ def create_gmaps_query(details, channel, type="raid"):
 # Given a User, check that it is Meowth's master
 
 def check_master(user):
-    return str(user) == config['master']
+    return str(user) in config['master']
 
 def check_server_owner(user, guild):
     return str(user) == str(guild.owner)
@@ -1036,9 +1036,9 @@ Events
 """
 @Meowth.event
 async def on_ready():
-    Meowth.owner = discord.utils.get(
-        Meowth.get_all_members(), id=config['master'])
-    await _print(Meowth.owner, _('Starting up...'))
+    Meowth.owners = [ discord.utils.get(Meowth.get_all_members(), id=id) for id in config['master'] ]
+    for owner in Meowth.owners:
+        await _print(owner, _('Starting up...'))
     Meowth.uptime = datetime.datetime.now()
     owners = []
     msg_success = 0
@@ -1089,7 +1089,8 @@ async def on_ready():
                 'trainers':{}
             }
         owners.append(guild.owner)
-    await _print(Meowth.owner, _("Meowth! That's right!\n\n{server_count} servers connected.\n{member_count} members found.").format(server_count=guilds, member_count=users))
+    for owner in Meowth.owners:
+        await _print(owner, _("Meowth! That's right!\n\n{server_count} servers connected.\n{member_count} members found.").format(server_count=guilds, member_count=users))
     await maint_start()
 
 @Meowth.event
