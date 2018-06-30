@@ -32,6 +32,6 @@ def init_loggers():
 
     logger.addHandler(fhandler)
 
-    # logger.addHandler(stdout_handler)
+    logger.addHandler(stdout_handler)
 
     return logger
