@@ -2,15 +2,18 @@ import sys
 import logging
 import logging.handlers
 
+
 def init_loggers():
     # d.py stuff
     dpy_logger = logging.getLogger("discord")
-    dpy_logger.setLevel(logging.WARNING)
+    dpy_logger.setLevel(logging.INFO)
     console = logging.StreamHandler()
-    console.setLevel(logging.WARNING)
+    console.setLevel(logging.INFO)
     dpy_logger.addHandler(console)
 
     # Meowth
+
+    loglvl = logging.DEBUG
 
     logger = logging.getLogger("meowth")
 
@@ -21,7 +24,8 @@ def init_loggers():
 
     stdout_handler = logging.StreamHandler(sys.stdout)
     stdout_handler.setFormatter(meowth_format)
-    logger.setLevel(logging.INFO)
+    logger.setLevel(loglvl)
+    logger.addHandler(stdout_handler)
 
     logfile_path = 'logs/meowth.log'
     fhandler = logging.handlers.RotatingFileHandler(
@@ -30,7 +34,5 @@ def init_loggers():
     fhandler.setFormatter(meowth_format)
 
     logger.addHandler(fhandler)
-
-    # logger.addHandler(stdout_handler)
 
     return logger

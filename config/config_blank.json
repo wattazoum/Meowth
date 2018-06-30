@@ -16,9 +16,9 @@
 "//": "Default bot prefix. Used if server has not set one.",
 "default_prefix":"!",
 
-"//": "Define Meowth's master id (that's you).",
-"//": "Meowth will only take admin commands from the user with this id",
-"master": 000000000000000000,
+"//": "Define Meowth's masters id (that's you and your mates).",
+"//": "Meowth will only take admin commands from the users with these ids",
+"master": [ 000000000000000000 ],
 
 "//": "Limit egg assumed hatches to certain egg levels.",
 "allow_assume": {"EX": "False", "5": "False", "4": "False", "3": "False", "2": "False", "1": "False"},
@@ -26,7 +26,13 @@
 "//": "Define your server's emoji strings here.",
 
 "//": "Emoji for team assignments",
-"team_dict": {"mystic": ":mystic:", "valor": ":valor:", "instinct": ":instinct:", "harmony": ":harmony:"},
+
+"team_dict": {
+    "mystic":   { "emoji" : ":mystic:", "role" : "Equipe Sagesse" },
+    "valor":    { "emoji" : ":valor:", "role" : "Equipe Bravoure" },
+    "instinct": { "emoji" : ":instinct:", "role" : "Equipe Intuition"  },
+    "harmony":  { "emoji" : ":harmony:", "role" : "Equipe Harmony" }
+},
 
 "//": "Emoji for raid organization",
 "omw_id": ":omw:",
