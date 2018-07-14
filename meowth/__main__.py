@@ -1630,23 +1630,18 @@ async def perms(ctx, channel_id = None):
             pass
         await ctx.author.send(embed=embed)
 
-@Meowth.command()
+@Meowth.command(help=_("Test welcome on yourself or mentioned member.\n\n"
+                        "Usage: !welcome [@member]"))
 @commands.has_permissions(manage_guild=True)
 async def welcome(ctx, user: discord.Member=None):
-    """Test welcome on yourself or mentioned member.
-
-    Usage: !welcome [@member]"""
     if (not user):
         user = ctx.author
     await on_member_join(user)
 
-@Meowth.command(hidden=True)
+@Meowth.command(hidden=True,
+                help=_("Get current Meowth log.\n\nUsage: !outputlog\nOutput is a link to hastebin."))
 @commands.has_permissions(manage_guild=True)
 async def outputlog(ctx):
-    """Get current Meowth log.
-
-    Usage: !outputlog
-    Output is a link to hastebin."""
     with open(os.path.join('logs', 'meowth.log'), 'r', encoding='latin-1', errors='replace') as logfile:
         logdata = logfile.read()
     await ctx.channel.send(hastebin.post(logdata))
@@ -1946,10 +1941,10 @@ async def _configure_team(ctx):
     owner = ctx.message.author
     config_dict_temp = getattr(ctx, 'config_dict_temp',copy.deepcopy(guild_dict[guild.id]['configure_dict']))
     await owner.send(embed=discord.Embed(colour=discord.Colour.lighter_grey(),
-                                         description=_("Team assignment allows users to assign their Pokemon Go team role using the **!team** command. " +
-                                                       "If you have a bot that handles this already, you may want to disable this feature.\n\n" +
-                                                       "If you are to use this feature, ensure existing team roles are as follows: mystic, valor, instinct. " +
-                                                       "These must be all lowercase letters. If they don't exist yet, I'll make some for you instead.\n\n" +
+                                         description=_("Team assignment allows users to assign their Pokemon Go team role using the **!team** command. "
+                                                       "If you have a bot that handles this already, you may want to disable this feature.\n\n"
+                                                       "If you are to use this feature, ensure existing team roles are as follows: mystic, valor, instinct. "
+                                                       "These must be all lowercase letters. If they don't exist yet, I'll make some for you instead.\n\n"
                                                        "Respond here with: **N** to disable, **Y** to enable:")
                                          ).set_author(name=_('Team Assignments'), icon_url=Meowth.user.avatar_url))
     while True:
@@ -1987,9 +1982,9 @@ async def _configure_team(ctx):
     ctx.config_dict_temp = config_dict_temp
     return ctx
 
-@configure.command()
+
+@configure.command(help=_("""Welcome message settings"""))
 async def welcome(ctx):
-    """Welcome message settings"""
     guild = ctx.message.guild
     owner = ctx.message.author
     try:
