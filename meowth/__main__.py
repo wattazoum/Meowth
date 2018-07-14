@@ -3062,7 +3062,13 @@ async def _configure_want(ctx):
     guild = ctx.message.guild
     owner = ctx.message.author
     config_dict_temp = getattr(ctx, 'config_dict_temp',copy.deepcopy(guild_dict[guild.id]['configure_dict']))
-    await owner.send(embed=discord.Embed(colour=discord.Colour.lighter_grey(), description=_("The **!want** and **!unwant** commands let you add or remove roles for Pokemon that will be mentioned in reports. This let you get notifications on the Pokemon you want to track. I just need to know what channels you want to allow people to manage their pokemon with the **!want** and **!unwant** command.\n\nIf you don't want to allow the management of tracked Pokemon roles, then you may want to disable this feature.\n\nRepond with: **N** to disable, or the **channel-name** list to enable, each seperated by a comma and space.")).set_author(name=_('Pokemon Notifications'), icon_url=Meowth.user.avatar_url))
+    await owner.send(embed=discord.Embed(colour=discord.Colour.lighter_grey(),
+                                         description=_("The **!want** and **!unwant** commands let you add or remove roles for Pokemon that will be mentioned in reports. "
+                                                       "This let you get notifications on the Pokemon you want to track. "
+                                                       "I just need to know what channels you want to allow people to manage their pokemon with the **!want** and **!unwant** command.\n\n"
+                                                       "If you don't want to allow the management of tracked Pokemon roles, then you may want to disable this feature.\n\n"
+                                                       "Repond with: **N** to disable, or the **channel-name** list to enable, each seperated by a comma and space.")
+                                         ).set_author(name=_('Pokemon Notifications'), icon_url=Meowth.user.avatar_url))
     while True:
         wantchs = await Meowth.wait_for('message', check=(lambda message: (message.guild == None) and message.author == owner))
         if wantchs.content.lower() == 'n':
