@@ -19,11 +19,10 @@ COPY ./meowth $MEOWTH_INSTALLDIR/meowth
 COPY ./locale $MEOWTH_INSTALLDIR/locale
 COPY ./images $MEOWTH_INSTALLDIR/images
 COPY ./data $MEOWTH_INSTALLDIR/data
-COPY ./config $MEOWTH_INSTALLDIR/config
 COPY launcher.py LICENSE emoji.rar $MEOWTH_INSTALLDIR/
 
 
-RUN mkdir $MEOWTH_INSTALLDIR/logs && \
+RUN mkdir $MEOWTH_INSTALLDIR/logs $MEOWTH_INSTALLDIR/config && \
     chown meowth:meowth -R $MEOWTH_INSTALLDIR/config $MEOWTH_INSTALLDIR/logs
 
 RUN apk del build-base git make gcc g++ && \
@@ -32,7 +31,7 @@ RUN apk del build-base git make gcc g++ && \
 
 USER meowth
 
-VOLUME [ "$MEOWTH_INSTALLDIR/logs","$MEOWTH_INSTALLDIR/config" ]
+VOLUME [ "$MEOWTH_INSTALLDIR/logs", "$MEOWTH_INSTALLDIR/config" ]
 
 WORKDIR $MEOWTH_INSTALLDIR
 
