@@ -32,9 +32,8 @@ class DataHandler:
             number = None
         return int(number)
 
-    @commands.group(invoke_without_command=True)
+    @commands.group(name=_('raiddata'), help=_("""Show all raid Pokemon, showing only the raid level if provided."""), invoke_without_command=True)
     async def raiddata(self, ctx, level=None):
-        """Show all raid Pokemon, showing only the raid level if provided."""
         data = []
         title = None
         if level:
@@ -64,13 +63,13 @@ class DataHandler:
                 return pkmnlvl
         return None
 
-    @raiddata.command(name='remove', aliases=['rm', 'del', 'delete'])
-    async def remove_rd(self, ctx, *raid_pokemon):
-        """Removes all pokemon provided as arguments from the raid data.
+    @raiddata.command(name=_('remove'), help=_("""Removes all pokemon provided as arguments from the raid data.
 
         Note: If a multi-word pokemon name is used, wrap in quote marks:
         Example: !raiddata remove "Mr Mime" Jynx
-        """
+        """), aliases=['rm', 'del', 'delete'])
+    async def remove_rd(self, ctx, *raid_pokemon):
+
         results = []
         for pokemon in raid_pokemon:
             if not pokemon.isdigit():
@@ -109,14 +108,13 @@ class DataHandler:
             added.append(f"#{pokemon} {self.get_name(pokemon)}")
         return (added, failed)
 
-    @raiddata.command(name='add')
-    async def add_rd(self, ctx, level, *raid_pokemon):
-        """Adds all pokemon provided as arguments to the specified raid
+    @raiddata.command(name=_('add'), help=_("""Adds all pokemon provided as arguments to the specified raid
         level in the raid data.
 
         Note: If a multi-word pokemon name is used, wrap in quote marks:
         Example: !raiddata add "Mr Mime" Jynx
-        """
+        """))
+    async def add_rd(self, ctx, level, *raid_pokemon):
 
         if level not in self.raid_info['raid_eggs'].keys():
             return await ctx.send("Invalid raid level specified.")
@@ -137,14 +135,14 @@ class DataHandler:
 
         await ctx.send('\n'.join(result))
 
-    @raiddata.command(name='replace', aliases=['rp'])
-    async def replace_rd(self, ctx, level, *raid_pokemon):
-        """All pokemon provided will replace the specified raid level
+    @raiddata.command(name=_('replace'), help=_("""All pokemon provided will replace the specified raid level
         in the raid data.
 
         Note: If a multi-word pokemon name is used, wrap in quote marks:
         Example: !raiddata add "Mr Mime" Jynx
-        """
+        """), aliases=['rp'])
+    async def replace_rd(self, ctx, level, *raid_pokemon):
+
         if level not in self.raid_info['raid_eggs'].keys():
             return await ctx.send("Invalid raid level specified.")
         if not raid_pokemon:
@@ -169,9 +167,9 @@ class DataHandler:
 
         await ctx.send('\n'.join(result))
 
-    @raiddata.command(name='save', aliases=['commit'])
+    @raiddata.command(name=_('save'), help=_("""Saves the current raid data state to the json file."""), aliases=['commit'])
     async def save_rd(self, ctx):
-        """Saves the current raid data state to the json file."""
+
         for pkmn_lvl in self.raid_info['raid_eggs']:
             data = self.raid_info['raid_eggs'][pkmn_lvl]["pokemon"]
             pkmn_ints = [int(p) for p in data]

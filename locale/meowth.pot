@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2018-08-19 23:51+CEST\n"
+"POT-Creation-Date: 2018-08-21 11:29+CEST\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -211,7 +211,7 @@ msgid ""
 "File path is relative to current directory."
 msgstr ""
 
-#: meowth/__main__.py:1357
+#: meowth/__main__.py:1357 meowth/exts/datahandler.py:170
 msgid "save"
 msgstr ""
 
@@ -3716,6 +3716,59 @@ msgstr ""
 
 #: meowth/errors.py:402
 msgid "Meowth! Please use **{prefix}{cmd_name}** in a EX Raid channel. Use **{prefix}list** in any of the following region channels to see active raids:"
+msgstr ""
+
+#: meowth/exts/datahandler.py:35
+msgid "Show all raid Pokemon, showing only the raid level if provided."
+msgstr ""
+
+#: meowth/exts/datahandler.py:35
+msgid "raiddata"
+msgstr ""
+
+#: meowth/exts/datahandler.py:66
+msgid ""
+"Removes all pokemon provided as arguments from the raid data.\n"
+"\n"
+"        Note: If a multi-word pokemon name is used, wrap in quote marks:\n"
+"        Example: !raiddata remove \"Mr Mime\" Jynx\n"
+"        "
+msgstr ""
+
+#: meowth/exts/datahandler.py:66
+msgid "remove"
+msgstr ""
+
+#: meowth/exts/datahandler.py:111
+msgid ""
+"Adds all pokemon provided as arguments to the specified raid\n"
+"        level in the raid data.\n"
+"\n"
+"        Note: If a multi-word pokemon name is used, wrap in quote marks:\n"
+"        Example: !raiddata add \"Mr Mime\" Jynx\n"
+"        "
+msgstr ""
+
+#: meowth/exts/datahandler.py:111
+msgid "add"
+msgstr ""
+
+#: meowth/exts/datahandler.py:138
+msgid ""
+"All pokemon provided will replace the specified raid level\n"
+"        in the raid data.\n"
+"\n"
+"        Note: If a multi-word pokemon name is used, wrap in quote marks:\n"
+"        Example: !raiddata add \"Mr Mime\" Jynx\n"
+"        "
+msgstr ""
+
+#: meowth/exts/datahandler.py:138
+msgid "replace"
+msgstr ""
+
+#: meowth/exts/datahandler.py:170
+msgid "Saves the current raid data state to the json file."
 msgstr ""
 
 #: meowth/utils.py:153
