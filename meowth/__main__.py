@@ -1397,7 +1397,6 @@ async def exit(ctx):
 async def _set(ctx):
     if ctx.invoked_subcommand == None:
         raise commands.BadArgument()
-        return
 
 @_set.command(name=_("regional"), help=_("Changes server regional pokemon."))
 @commands.has_permissions(manage_guild=True)
@@ -6121,9 +6120,10 @@ async def _maybe(channel, author, count, party, entered_interest=None):
     Otherwise, this command expects at least one word in your message to be a number,
     and will assume you are a group with that many people.
 
-    Party is also optional. Format is #m #v #i #u to tell your party's teams."""), aliases=['c'])
+    Party is also optional. Format is #m #v #i #u to tell your party's teams."""), aliases=[_('c')])
 @checks.activechannel()
 async def coming(ctx, *, teamcounts: str=None):
+    logger.debug("recieved coming")
     trainer_dict = guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]['trainer_dict']
     rgx = '[^a-zA-Z0-9]'
     entered_interest = trainer_dict.get(ctx.author.id, {}).get('interest', [])
@@ -6176,13 +6176,15 @@ async def coming(ctx, *, teamcounts: str=None):
         partylist = result[1]
         await _coming(ctx.channel, ctx.author, count, partylist, entered_interest)
 
+
 async def _coming(channel, author, count, party, entered_interest=None):
     allblue = 0
     allred = 0
     allyellow = 0
     allunknown = 0
     trainer_dict = guild_dict[channel.guild.id]['raidchannel_dict'][channel.id]['trainer_dict']
-    if (not party):
+    logger.debug("party: %s" % party)
+    if not party:
         for role in author.roles:
             if role.name.lower() == 'mystic':
                 allblue = count
@@ -6227,7 +6229,7 @@ async def _coming(channel, author, count, party, entered_interest=None):
     Otherwise, this command expects at least one word in your message to be a number,
     and will assume you are a group with that many people.
 
-    Party is also optional. Format is #m #v #i #u to tell your party's teams."""), aliases=['h'])
+    Party is also optional. Format is #m #v #i #u to tell your party's teams."""), aliases=[_('h')])
 @checks.activechannel()
 async def here(ctx, *, teamcounts: str=None):
     trainer_dict = guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]['trainer_dict']

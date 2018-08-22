@@ -1,4 +1,5 @@
 import re
+import gettext
 
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
@@ -152,41 +153,26 @@ async def get_raid_help(prefix, avatar, user=None):
     helpembed = discord.Embed(colour=discord.Colour.lighter_grey())
     helpembed.set_author(name=_("Raid Coordination Help"), icon_url=avatar)
     helpembed.add_field(
-        name="Key",
+        name=_("Key"),
         value=_("<> denote required arguments, [] denote optional arguments"),
         inline=False)
     helpembed.add_field(
         name=_("Raid MGMT Commands"),
-        value=(
-            f"`{prefix}raid <species>`\n"
-            f"`{prefix}weather <weather>`\n"
-            f"`{prefix}timerset <minutes>`\n"
-            f"`{prefix}starttime <time>`\n"
-            "`<google maps link>`\n"
+        value=_(
+            "```asciidoc\n"
+            "{prefix}raid <species> :: Hatches Egg channel\n"
+            "{prefix}weather <weather> :: Sets in-game weather\n"
+            "{prefix}timerset <minutes> :: Sets hatch/raid timer\n"
+            "{prefix}starttime <time> :: Sets start time\n"
+            "<google maps link> :: Updates raid location\n\n"
             "**RSVP**\n"
-            f"`{prefix}(i/c/h)...\n"
-            "[total]...\n"
-            "[team counts]`\n"
+            "{prefix}(i/c/h) [total] [team counts] :: (interested/coming/here) [# of trainers] [# from each team (ex. 3m for 3 Mystic)]\n\n"
             "**Lists**\n"
-            f"`{prefix}list [status]`\n"
-            f"`{prefix}list [status] tags`\n"
-            f"`{prefix}list teams`\n\n"
-            f"`{prefix}starting [team]`"))
-    helpembed.add_field(
-        name="Description",
-        value=(
-            "`Hatches Egg channel`\n"
-            "`Sets in-game weather`\n"
-            "`Sets hatch/raid timer`\n"
-            "`Sets start time`\n"
-            "`Updates raid location`\n\n"
-            "`interested/coming/here`\n"
-            "`# of trainers`\n"
-            "`# from each team (ex. 3m for 3 Mystic)`\n\n"
-            "`Lists trainers by status`\n"
-            "`@mentions trainers by status`\n"
-            "`Lists trainers by team`\n\n"
-            "`Moves trainers on 'here' list to a lobby.`"))
+            "{prefix}list [status] :: Lists trainers by status\n"
+            "{prefix}list [status] tags :: @mentions trainers by status\n"
+            "{prefix}list teams :: Lists trainers by team\n\n"
+            "{prefix}starting [team] :: Moves trainers on 'here' list to a lobby.\n"
+            "```").format(prefix=prefix))
     if not user:
         return helpembed
     await user.send(embed=helpembed)
