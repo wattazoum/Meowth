@@ -6150,13 +6150,13 @@ async def coming(ctx, *, teamcounts: str=None):
             return
     elif not pkmn_match and guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]['type'] == 'egg':
         entered_interest = [get_name(p) for p in cf.get_raid_info()['raid_eggs'][egglevel]['pokemon']]
-    trainer_dict = guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]['trainer_dict']
-    if (not teamcounts):
+
+    if not teamcounts:
         if ctx.author.id in trainer_dict:
-            bluecount = str(trainer_dict[ctx.author.id]['party']['mystic']) + _('m ')
-            redcount = str(trainer_dict[ctx.author.id]['party']['valor']) + _('v ')
-            yellowcount = str(trainer_dict[ctx.author.id]['party']['instinct']) + _('i ')
-            unknowncount = str(trainer_dict[ctx.author.id]['party']['unknown']) + _('u ')
+            bluecount = str(trainer_dict[ctx.author.id]['party']['mystic']) + '%s ' % cf.get_team_info('mystic')['short']
+            redcount = str(trainer_dict[ctx.author.id]['party']['valor']) + '%s ' % cf.get_team_info('valor')['short']
+            yellowcount = str(trainer_dict[ctx.author.id]['party']['instinct']) + '%s ' % cf.get_team_info('instinct')['short']
+            unknowncount = str(trainer_dict[ctx.author.id]['party']['unknown']) + 'u '
             teamcounts = ((((str(trainer_dict[ctx.author.id]['count']) + ' ') + bluecount) + redcount) + yellowcount) + unknowncount
         else:
             teamcounts = '1'
@@ -6256,7 +6256,7 @@ async def here(ctx, *, teamcounts: str=None):
     elif not pkmn_match and guild_dict[ctx.guild.id]['raidchannel_dict'][ctx.channel.id]['type'] == 'egg':
         entered_interest = [get_name(p) for p in cf.get_raid_info()['raid_eggs'][egglevel]['pokemon']]
 
-    if (not teamcounts):
+    if not teamcounts:
         if ctx.author.id in trainer_dict:
             bluecount = str(trainer_dict[ctx.author.id]['party']['mystic']) + '%s ' % cf.get_team_info('mystic')['short']
             redcount = str(trainer_dict[ctx.author.id]['party']['valor']) + '%s ' % cf.get_team_info('valor')['short']
@@ -6361,15 +6361,18 @@ async def _party_status(ctx, total, teamcounts):
     unknown = ['unknown', 0]
     regx = re.compile('([a-zA-Z]+)([0-9]+)|([0-9]+)([a-zA-Z]+)')
     team_aliases = {
-        'mystic' : mystic,
+        'mystic': mystic,
+        'm': mystic,
         cf.get_team_info('mystic')['name']: mystic,
         cf.get_team_info('mystic')['color']: mystic,
         cf.get_team_info('mystic')['short']: mystic,
         'instinct': instinct,
+        'i': instinct,
         cf.get_team_info('instinct')['name']: instinct,
         cf.get_team_info('instinct')['color']: instinct,
         cf.get_team_info('instinct')['short']: instinct,
         'valor': valor,
+        'v': valor,
         cf.get_team_info('valor')['name']: valor,
         cf.get_team_info('valor')['color']: valor,
         cf.get_team_info('valor')['short']: valor,
