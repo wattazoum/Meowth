@@ -19,3 +19,8 @@ class TestConfig(TestCase):
     def test_get_raid_info(self):
         config = Config()
         print(config.get_raid_info()['raid_eggs'])
+
+    def test_get_pokemon_mapping(self):
+        config = Config()
+        print(config.get_pokemon_mapping())
+

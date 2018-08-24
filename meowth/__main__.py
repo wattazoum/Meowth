@@ -127,7 +127,8 @@ def load_config():
         type_list = json.load(fd)
     # Set spelling dictionary to our list of Pokemon
     pkmn_match.set_list(pkmn_info['pokemon_list'])
-    return (pokemon_path_source, raid_path_source)
+    return pokemon_path_source, raid_path_source
+
 
 pkmn_path, raid_path = load_config()
 
@@ -5757,7 +5758,7 @@ async def duplicate(ctx):
     If [user] is a valid Pokebattler user id, Meowth will simulate the Raid with that user's Pokebox.
     Uses current boss and weather by default if available.
     """))
-async def counters(ctx, *, args = None):
+async def counters(ctx, *, args=None):
     rgx = '[^a-zA-Z0-9]'
     channel = ctx.channel
     guild = channel.guild
@@ -5822,10 +5823,34 @@ async def counters(ctx, *, args = None):
         return
     await _counters(ctx, pkmn, user, weather, "Unknown Moveset")
 
-async def _counters(ctx, pkmn, user = None, weather = None, movesetstr = "Unknown Moveset"):
+
+def translate_pkm(pkm_name, from_lang='en'):
+    """
+    Translate the pokémon name
+    :param pkm_name: The name
+    :param from_lang: the lang from which to translate. Accepted values: 'en' or 'lang'
+    :return: either the translation or the passed name if not found
+    """
+    orig_pkm = pkm_name
+    tr_dict = cf.get_pokemon_mapping()[from_lang]
+    alola = False
+    if "alola form" in pkm_name.lower():
+        pkm_name = pkm_name.lower().replace("alola form", "").strip()
+        alola = True
+    if pkm_name.lower() in tr_dict:
+        if alola:
+            return tr_dict[pkm_name.lower()]['name'] + " (Alola)"
+        else:
+            return tr_dict[pkm_name.lower()]['name']
+    else:
+        return orig_pkm
+
+
+async def _counters(ctx, pkmn, user = None, weather = None, movesetstr = _("Unknown Moveset")):
     img_url = 'https://raw.githubusercontent.com/FoglyOgly/Meowth/discordpy-v1/images/pkmn/{0}_.png?cache=4'.format(str(get_number(pkmn)).zfill(3))
     level = get_level(pkmn) if get_level(pkmn).isdigit() else "5"
-    url = "https://fight.pokebattler.com/raids/defenders/{pkmn}/levels/RAID_LEVEL_{level}/attackers/".format(pkmn=pkmn.replace('-','_').upper(),level=level)
+    orig_pkmn_name = cf.get_pokemon_mapping()['lang'][pkmn]['name']
+    url = "https://fight.pokebattler.com/raids/defenders/{pkmn}/levels/RAID_LEVEL_{level}/attackers/".format(pkmn=orig_pkmn_name.replace('-','_').upper(),level=level)
     if user:
         url += "users/{user}/".format(user=user)
         userstr = _("user #{user}'s").format(user=user)
@@ -5855,7 +5880,7 @@ async def _counters(ctx, pkmn, user = None, weather = None, movesetstr = "Unknow
         data = data['attackers'][0]
         raid_cp = data['cp']
         atk_levels = '30'
-        if movesetstr == "Unknown Moveset":
+        if movesetstr == _("Unknown Moveset"):
             ctrs = data['randomMove']['defenders'][-6:]
             est = data['randomMove']['total']['estimator']
         else:
@@ -5871,8 +5896,10 @@ async def _counters(ctx, pkmn, user = None, weather = None, movesetstr = "Unknow
                 movesetstr = "Unknown Moveset"
                 ctrs = data['randomMove']['defenders'][-6:]
                 est = data['randomMove']['total']['estimator']
+
         def clean(txt):
             return txt.replace('_', ' ').title()
+
         title = _('{pkmn} | {weather} | {movesetstr}').format(pkmn=pkmn.title(),weather=weather_list[index].title(),movesetstr=movesetstr)
         stats_msg = _("**CP:** {raid_cp}\n").format(raid_cp=raid_cp)
         stats_msg += _("**Weather:** {weather}\n").format(weather=clean(weather))
@@ -5888,7 +5915,7 @@ async def _counters(ctx, pkmn, user = None, weather = None, movesetstr = "Unknow
             ctr_cp = ctr['cp']
             moveset = ctr['byMove'][-1]
             moves = _("{move1} | {move2}").format(move1=clean(moveset['move1'])[:-5], move2=clean(moveset['move2']))
-            name = _("#{index} - {ctr_name}").format(index=index, ctr_name=(ctr_nick or ctr_name))
+            name = _("#{index} - {ctr_name}").format(index=index, ctr_name=(ctr_nick or translate_pkm(ctr_name).title()))
             cpstr = _("CP")
             ctrs_embed.add_field(name=name,value=f"{cpstr}: {ctr_cp}\n{moves}")
             index += 1

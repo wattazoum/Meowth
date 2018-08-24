@@ -12,6 +12,7 @@ class Config:
     config = None
     pokemon_path_source = None
     pkmn_info = None
+    pkmn_i18n_mapping = None
     raid_info = None
     team_info = None
     type_list = None
@@ -30,18 +31,33 @@ class Config:
         self.language = gettext.translation(
             'meowth', localedir='locale', languages=[language_])
         self.language.install()
-        self.pokemon_path_source = os.path.join(
-            'locale', '{0}', 'pkmn.json').format(self.config['pokemon-language'])
 
-        # Load Pokemon list and raid info
-        with open(self.pokemon_path_source, 'r') as fd:
-            self.pkmn_info = json.load(fd)
+        self.__load_pokemon_info()
 
         self.__load_raid_info()
 
         self.__load_type_info()
 
         self.__load_team_info(language_)
+
+    def __load_pokemon_info(self):
+
+        self.pokemon_en_path_source = os.path.join('locale', 'en', 'pkmn.json')
+
+        self.pokemon_path_source = os.path.join(
+            'locale', '{0}', 'pkmn.json').format(self.config['pokemon-language'])
+
+        # Load Pokemon list
+        with open(self.pokemon_path_source, 'r') as fd:
+            self.pkmn_info = json.load(fd)
+
+        with open(self.pokemon_en_path_source, 'r') as fd:
+            pkmn_en_info = json.load(fd)
+            pkmn_en_list = pkmn_en_info["pokemon_list"]
+            self.pkmn_i18n_mapping = {'en': {}, 'lang': {}}
+            for index, i18n_name in enumerate(self.pkmn_info["pokemon_list"]):
+                self.pkmn_i18n_mapping['lang'][i18n_name] = {"id": index, "name": pkmn_en_list[index]}
+                self.pkmn_i18n_mapping['en'][pkmn_en_list[index]] = {"id": index, "name": i18n_name}
 
     def __load_type_info(self):
         # Load type information
@@ -74,6 +90,9 @@ class Config:
 
     def get_pokemon_list(self):
         return self.pkmn_info['pokemon_list']
+
+    def get_pokemon_mapping(self):
+        return self.pkmn_i18n_mapping
 
     def get_team_info(self, team):
         return self.team_info[team]
